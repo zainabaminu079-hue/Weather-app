@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather App - Zainab</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:linear-gradient(135deg,#a18cd1,#fbc2eb);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:white;width:100%;max-width:380px;border-radius:20px;padding:30px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+.search{display:flex;gap:10px;margin-bottom:20px}
+.search input{flex:1;padding:12px 15px;border:1px solid #ddd;border-radius:25px;outline:none}
+.search button{padding:12px 20px;border:none;background:#6c5ce7;color:white;border-radius:25px;cursor:pointer}
+.weather{display:none}
+.weather h2{font-size:32px;margin:10px 0}
+.weather img{width:100px}
+.details{display:flex;justify-content:space-between;margin-top:20px;font-weight:bold}
+.error{color:red;margin-top:15px;display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="search">
+    <input type="text" id="cityInput" placeholder="Enter city e.g Lagos">
+    <button id="searchBtn">Search</button>
+  </div>
+  <p class="error" id="error"></p>
+  <div class="weather" id="weather">
+    <img id="icon" src="">
+    <h2 id="city"></h2>
+    <h1 id="temp"></h1>
+    <p id="desc"></p>
+    <div class="details">
+      <div>💧 <span id="humidity"></span>% Humidity</div>
+      <div>🌡️ <span id="feels"></span>°C Feels</div>
+    </div>
+  </div>
+</div>
+<script>
+const apiKey = "2121ec63be286e736e57e645fd149cb1";
+const cityInput = document.getElementById("cityInput");
+const searchBtn = document.getElementById("searchBtn");
+async function getWeather(city){
+  const errorEl = document.getElementById("error");
+  const weatherEl = document.getElementById("weather");
+  try{
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("City not found - try again in 1 hour if key is new");
+    const data = await res.json();
+    document.getElementById("city").innerText = data.name;
+    document.getElementById("temp").innerText = Math.round(data.main.temp) + "°C";
+    document.getElementById("humidity").innerText = data.main.humidity;
+    document.getElementById("feels").innerText = Math.round(data.main.feels_like);
+    document.getElementById("desc").innerText = data.weather[0].description;
+    document.getElementById("icon").src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    weatherEl.style.display = "block";
+    errorEl.style.display = "none";
+  }catch(err){
+    errorEl.innerText = err.message;
+    errorEl.style.display = "block";
+    weatherEl.style.display = "none";
+  }
+}
+searchBtn.addEventListener("click", ()=> { if(cityInput.value) getWeather(cityInput.value) });
+cityInput.addEventListener("keyup", (e)=>{ if(e.key==="Enter") getWeather(cityInput.value) });
+getWeather("Kano");
+</script>
+</body>
+</html>
